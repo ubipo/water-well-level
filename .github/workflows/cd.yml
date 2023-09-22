@@ -34,7 +34,7 @@ jobs:
       - name: Build
         run: npm run build
       - name: Add CNAME file
-        run: echo "{{ secrets.UI_DOMAIN }}" >> dist/CNAME
+        run: echo "${{ env.UI_DOMAIN }}" >> dist/CNAME
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:

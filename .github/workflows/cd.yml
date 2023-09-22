@@ -50,7 +50,7 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - name: Create debug artifact
-        uses: actions/create-artifact@v3
+        uses: actions/upload-artifact@v3
         with:
           name: debug
           path: /home/runner/work/_actions/actions/deploy-pages/v2/webpack

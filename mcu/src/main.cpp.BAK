@@ -1,0 +1,189 @@
+#include <Arduino.h>
+
+
+#define DEBUG true
+#define MODE_1A
+
+#define PIN_TRIGGER A5
+#define PIN_ECHO A4
+#define DISTANCE_CORRECTION 0.0
+
+#define PIN_CELLULAR_PWR 3
+
+#define TINY_GSM_MODEM_SIM7600
+
+#define SerialMon Serial
+#define SerialAT Serial1
+#define TINY_GSM_DEBUG SerialMon
+#define GSM_AUTOBAUD_MIN 9600
+#define GSM_AUTOBAUD_MAX 115200
+
+#include <TinyGsmClient.h>
+#include <StreamDebugger.h>
+
+StreamDebugger debugger(SerialAT, SerialMon);
+TinyGsm        modem(debugger);
+
+
+
+int last_n_distances_index = 0;
+long last_n_distances[20];
+
+String from_usb = "";
+
+
+
+String sendData(String command, const int timeout, boolean debug)
+{
+    String response = "";
+    if (command.equals("1A") || command.equals("1a"))
+    {
+        Serial.println();
+        Serial.println("Get a 1A, input a 0x1A");
+ 
+        //Serial1.write(0x1A);
+        Serial1.write(26);
+        Serial1.println();
+        return "";
+    }
+    else
+    {
+        Serial1.println(command);
+    }
+ 
+    long int time = millis();
+    while ((time + timeout) > millis())
+    {
+        while (Serial1.available())
+        {
+            char c = Serial1.read();
+            response += c;
+        }
+    }
+    if (debug)
+    {
+      Serial.print("Response: ");
+      Serial.println(response);
+    }
+    return response;
+}
+
+
+bool moduleStateCheck()
+{
+    int i = 0;
+    bool moduleState = false;
+    for (i = 0; i < 5; i++)
+    {
+        String msg = String("");
+        msg = sendData("AT", 1000, DEBUG);
+        if (msg.indexOf("OK") >= 0)
+        {
+            Serial.println("SIM7600 Module had turned on.");
+            moduleState = true;
+            return moduleState;
+        }
+        delay(1000);
+    }
+    return moduleState;
+}
+
+void setup() {
+  pinMode(PIN_TRIGGER, OUTPUT);
+  pinMode(PIN_ECHO, INPUT);
+  
+  Serial.begin(9600);
+
+  // Serial.println("");
+  // Serial.println("Power cycling cellular module...");
+  // Serial1.begin(28800);
+  // Serial.println("AT serial initialized.");
+  // pinMode(PIN_CELLULAR_PWR, OUTPUT);
+  // digitalWrite(PIN_CELLULAR_PWR, HIGH);
+  // delay(2000);
+  // digitalWrite(PIN_CELLULAR_PWR, LOW);
+  // delay(500);
+
+  // Serial.println("Initializing cellular module...");
+  // sendData("AT+GMM", 3000, DEBUG);
+  // Serial.println("SIM7600E initialized.");
+  TinyGsmAutoBaud(SerialAT, GSM_AUTOBAUD_MIN, GSM_AUTOBAUD_MAX);
+  // SerialAT.begin(9600);
+  delay(6000);
+
+  // Restart takes quite some time
+  // To skip it, call init() instead of restart()
+  SerialMon.println("Initializing modem...");
+  modem.restart();
+  modem.init();
+
+  String modemInfo = modem.getModemInfo();
+  SerialMon.print("Modem Info: ");
+  SerialMon.println(modemInfo);
+  String modemName = modem.getModemName();
+  SerialMon.print("Modem Name: ");
+  SerialMon.println(modemName);
+}
+
+void loop() {
+  // digitalWrite(PIN_TRIGGER, LOW);
+  // delayMicroseconds(2);
+
+  // digitalWrite(PIN_TRIGGER, HIGH);
+  // delayMicroseconds(10);
+  // digitalWrite(PIN_TRIGGER, LOW);
+
+  // int duration = pulseIn(PIN_ECHO, HIGH);
+  // long distance = duration * 0.0344 / 2;
+
+  // last_n_distances[last_n_distances_index] = distance;
+  // last_n_distances_index = (last_n_distances_index + 1) % 20;
+
+  // long sum = 0;
+  // for (int i = 0; i < 10; i++) {
+  //   sum += last_n_distances[i];
+  // }
+  // distance = sum / 10;
+
+  // Serial.println(distance + DISTANCE_CORRECTION);
+  // delay(100);
+
+//   while (Serial1.available() > 0)
+//     {
+//         Serial.write(Serial1.read());
+//         yield();
+//     }
+//     while (Serial.available() > 0)
+//     {
+// #ifdef MODE_1A
+//         int c = -1;
+//         c = Serial.read();
+//         if (c != '\n' && c != '\r')
+//         {
+//             from_usb += (char)c;
+//         }
+//         else
+//         {
+//             if (!from_usb.equals(""))
+//             {
+//                 sendData(from_usb, 0, DEBUG);
+//                 from_usb = "";
+//             }
+//         }
+// #else
+//         Serial1.write(Serial.read());
+//         yield();
+// #endif
+//     }
+
+  // if (Serial.available()) {      // If anything comes in Serial (USB),
+  //   uint8_t c = Serial.read();    // read it and send it out Serial1 (pins 0 & 1)
+  //   Serial.println(c);
+  //   Serial1.write(c);   // read it and send it out Serial1 (pins 0 & 1)
+  // }
+
+
+  // if (Serial1.available()) {     // If anything comes in Serial1 (pins 0 & 1)
+  //   Serial.write(Serial1.read());   // read it and send it out Serial (USB)
+  // }
+}

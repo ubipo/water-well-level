@@ -1,0 +1,23 @@
+{
+  "name": "water-level-lambda-api",
+  "private": true,
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-dynamodb": "^3.414.0",
+    "@aws-sdk/client-sns": "^3.414.0",
+    "@aws-sdk/lib-dynamodb": "^3.414.0",
+    "@aws-sdk/types": "^3.413.0",
+    "@types/aws-lambda": "^8.10.121",
+    "@types/node": "^20.6.2",
+    "jszip": "^3.10.1",
+    "typescript": "^5.0.2",
+    "vite": "^4.4.5"
+  }
+}

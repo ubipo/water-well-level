@@ -12,8 +12,8 @@ A GitHub pages hosted, static [Svelte](https://svelte.dev/) web app then queries
 
 All the cloud infrastructure is defined and deployed as [Terraform](https://www.terraform.io/) code.
 
-![Hardware](2023-09-17-13-14-55-141~2.jpg)
+![Sensor](images/sensor.jpg)
 
-![Deployment](2023-09-17-13-14-29-565.jpg)
+![Water well](images/water-well.jpg)
 
-![Graph](IMG-20230923-WA0000.jpg)
+![User interface](images/ui.png)

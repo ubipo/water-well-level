@@ -74,7 +74,6 @@
       }
     })();
     if (maybePlainEndDateTime == null) {
-      console.log("Invalid date/time");
       e.currentTarget.setCustomValidity("Invalid date/time");
       e.currentTarget.reportValidity();
       endDateTimeIsValid = false;
@@ -90,9 +89,12 @@
 
   let chart: Chart<keyof ChartTypeRegistry, ChartDataPoint[]> | undefined =
     undefined;
+  let noData = false;
 
   $: (() => {
     if (!chartCanvas || !measurements || !config || chart) return;
+    noData = measurements.length === 0;
+    if (noData) return;
     const chartData = measurementsToChartData(measurements);
     const { value: lowerThreshold } = config["lowerThresholdMM"];
     const { value: upperThreshold } = config['upperThresholdMM']
@@ -265,6 +267,10 @@
       }
     }
     const filtered = measurements.slice(earliestIndex, latestIndex + 1);
+    noData = filtered.length === 0;
+    const numberNotShownAfter = measurements.length - latestIndex - 1;
+    endDateTimeStatusText = `Showing ${filtered.length} of ${measurements.length} records (${earliestIndex} before start time not shown, ${numberNotShownAfter} after end time not shown).`;
+    if (noData) return;
     const chartData = measurementsToChartData(filtered);
     for (const dataset of chart.data.datasets) {
       dataset.data = chartData;
@@ -276,8 +282,6 @@
       chartData[chartData.length - 1].dateTimeS;
     }
     chart.update();
-    const numberNotShownAfter = measurements.length - latestIndex - 1;
-    endDateTimeStatusText = `Showing ${filtered.length} of ${measurements.length} records (${earliestIndex} before start time not shown, ${numberNotShownAfter} after end time not shown).`;
   })();
 
   let previousWidth: number = NaN;
@@ -332,12 +336,25 @@
 </label>
 <button id="fetch">Fetch</button>
 <div class="chart-container" bind:this={chartContainer}>
-  <canvas bind:this={chartCanvas} />
+  {#if noData}
+    <p class="no-data">No data</p>
+  {/if}
+  <canvas bind:this={chartCanvas} class:hidden={noData} />
 </div>
 
 <style>
   .invalid {
     color: #c31515;
+  }
+
+  .no-data {
+    text-align: center;
+    font-size: 1.5em;
+    margin: 0;
+  }
+
+  .hidden {
+    display: none !important;
   }
 
   button.reset {
@@ -365,6 +382,9 @@
   .chart-container {
     max-width: 100%;
     position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   canvas {

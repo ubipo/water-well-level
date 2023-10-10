@@ -14,12 +14,21 @@ function generateRandomToken() {
   ).join('')
 }
 
-function c(unit: string, defaultValue: any, userChangeable = true) {
-  return { unit, defaultValue, userChangeable }
+// Wether the field is visible to the user
+const INTERNAL = 1 << 0
+// Wether the field is send to the deployed IoT device
+const FIELD_DEPLOYED_READABLE = 1 << 1
+
+function c(unit: string, defaultValue: any, flags = 0) {
+  const userChangeable = (flags & INTERNAL) !== 0
+  const fieldDeployedReadable = (flags & FIELD_DEPLOYED_READABLE) !== 0
+  return { unit, defaultValue, userChangeable, fieldDeployedReadable }
 }
 
 export const CONFIG_KEYS_CONFIG = {
   "sensorDistanceFromBottomMM": c("mm", 5000),
+  "measurementIntervalS": c("s", 60 * 60, FIELD_DEPLOYED_READABLE),
+  "numberOfMeasurementsToSkipBetweenUploads": c("naturalNumber", 0, FIELD_DEPLOYED_READABLE),
   "readAuthorizationToken": c("text", generateRandomToken),
   "writeAuthorizationToken": c("text", generateRandomToken),
   "lowerThresholdMM": c("mm", 0),
@@ -29,13 +38,13 @@ export const CONFIG_KEYS_CONFIG = {
   "fastDropTimeS": c("s", 0),
   "fastRiseAmountMM": c("mm", Number.MAX_SAFE_INTEGER),
   "fastRiseTimeS": c("s", 0),
-  "lastThresholdNotificationS": c("s", 0, false),
+  "lastThresholdNotificationS": c("s", 0, INTERNAL),
 }
 export type ConfigKey = keyof typeof CONFIG_KEYS_CONFIG
 export type Config = Record<ConfigKey, any>
 
 export function parseUnitValue(unit: string, value: any) {
-  if (["mm", "s"].includes(unit)) {
+  if (["mm", "s", "naturalNumber"].includes(unit)) {
     return Number(value)
   } else if (unit === "text") {
     return String(value)

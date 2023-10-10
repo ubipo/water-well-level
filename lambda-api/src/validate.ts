@@ -26,7 +26,8 @@ export function validateTime(timeS: any): ValidateResult<number> {
   if (timeSNum < 0) {
     return [null, `negative`];
   }
-  const maxTime = nowS() + 1 * 60;
+  // Very generous limit; should be checked more carefully elsewhere
+  const maxTime = nowS() + 60 * 60 * 2;
   if (timeSNum > maxTime) {
     return [null, `too large: > ${maxTime}`]
   }

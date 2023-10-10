@@ -13,20 +13,30 @@ abstract class HttpError extends Error {
 
 export class HttpUnauthorizedError extends HttpError {
   name = HttpUnauthorizedError.constructor.name
-  message = "Unauthorized"
   statusCode = 401
+
+  constructor(message?: string) {
+    super(`Unauthorized: ${message ?? ""}`)
+  }
 }
 
 export class HttpBadRequestError extends HttpError {
   name = HttpBadRequestError.constructor.name
-  message = "Bad Request"
   statusCode = 400
+
+  constructor(message?: string) {
+    super(`Bad Request: ${message ?? ""}`)
+  }
 }
 
 export class HttpNotFoundError extends HttpError {
   name = HttpNotFoundError.constructor.name
   message = "Not Found"
   statusCode = 404
+
+  constructor(message?: string) {
+    super(`Not Found: ${message ?? ""}`)
+  }
 }
 
 interface Route {
@@ -71,6 +81,7 @@ export class RouteHandlerRegistrar {
       if (error instanceof NotFoundException) {
         return NOT_FOUND_RESPONSE
       } else if (error instanceof HttpError) {
+        console.error(`Sending ${error.statusCode} for ${method} ${path}: ${error.message}`)
         return {
           statusCode: error.statusCode,
           body: JSON.stringify({ message: error.message }),

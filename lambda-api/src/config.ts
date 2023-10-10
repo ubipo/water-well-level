@@ -20,7 +20,7 @@ const INTERNAL = 1 << 0
 const FIELD_DEPLOYED_READABLE = 1 << 1
 
 function c(unit: string, defaultValue: any, flags = 0) {
-  const userChangeable = (flags & INTERNAL) !== 0
+  const userChangeable = (flags & INTERNAL) === 0
   const fieldDeployedReadable = (flags & FIELD_DEPLOYED_READABLE) !== 0
   return { unit, defaultValue, userChangeable, fieldDeployedReadable }
 }

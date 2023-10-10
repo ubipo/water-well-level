@@ -11,6 +11,8 @@ export interface Measurement {
   timeS: number;
   waterLevelMM: number;
   batteryVoltage: number | null;
+  indexInBatch?: number;
+  nbroMeasurementsInBatch?: number;
 }
 
 async function snsPublish(message: string) {

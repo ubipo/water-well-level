@@ -2,7 +2,7 @@ import { APIGatewayProxyEventV2 } from "aws-lambda";
 import { HttpBadRequestError, HttpNotFoundError, HttpUnauthorizedError, RouteHandlerRegistrar } from "./RouteHandlerRegistrar";
 import { getDataTableName, getDynamo } from "./awsClients";
 import { validateBatteryVoltage, validateDistance, validateTime } from "./validate";
-import { publishMeasurement } from "./measurement";
+import { Measurement, publishMeasurement } from "./measurement";
 import { CONFIG_KEYS_CONFIG, ConfigKey, parseUnitValue, updateConfigItem } from "./config";
 import { PutCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
 import { nowS } from "./time";
@@ -129,7 +129,12 @@ registrar
     console.log(`Newest message is too old: ${newestMessage.timeS} < now [${now}] - ${NEWEST_MEASUREMENT_MAX_AGE_S}. Correcting to server time...`)
     validatedMessages.forEach(message => message.timeS += now - newestMessage.timeS)
   }
-  const measurements = validatedMessages.map(message => ({ hash: message.timeS, ...message }));
+  const measurements = validatedMessages.map((message, indexInBatch) => ({
+    ...message,
+    hash: message.timeS,
+    numberOfMeasurementsInBatch: validatedMessages.length,
+    indexInBatch
+  } as Measurement));
   await Promise.all(measurements.map(measurements => publishMeasurement(
     config, measurements
   )));

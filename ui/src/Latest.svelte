@@ -14,8 +14,8 @@ enum Limits {
 
 $: limit = (() => {
   if (!config || !measurement) return null
-  const { value: lowerThreshold } = config["lowerThresholdMM"]
-  const { value: upperThreshold } = config["upperThresholdMM"]
+  const { value: lowerThreshold } = config.lowerThresholdMM
+  const { value: upperThreshold } = config.upperThresholdMM
   if (measurement.waterLevelMM < lowerThreshold) return Limits.Low
   if (measurement.waterLevelMM > upperThreshold) return Limits.High
   return Limits.Ok

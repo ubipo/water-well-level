@@ -7,6 +7,15 @@ import debounce from 'lodash/debounce';
 import { fetchMeasurements } from "./service/measurement";
 import type { Measurement } from "./service/measurement";
 import { fetchConfig, type Config } from "./service/config";
+import { onMount } from "svelte";
+
+
+let globalErrorMessage: string | undefined = undefined
+
+function handleErrorLastResort(error: Error) {
+  console.error('Error handler of last resort', error)
+  globalErrorMessage = error.message
+}
 
 
 const PASSWORD_LOCAL_STORAGE_KEY = "password"
@@ -27,10 +36,27 @@ const configFuture = (async () => {
   config = await fetchConfig(password)
 })()
 
+onMount(() => {
+  window.onunhandledrejection = (event) => {
+    if (event.reason instanceof Error) {
+      handleErrorLastResort(event.reason)
+    } else {
+      handleErrorLastResort(new Error(`Unhandled rejection: ${event.reason}`))
+    }
+  }
+})
+
 </script>
 
 <main>
   <h1>Water Level</h1>
+
+  {#if globalErrorMessage}
+  <div class="error">
+    <p>An unrecoverable error occurred:</p>
+    <pre>{globalErrorMessage}</pre>
+  </div>
+  {/if}
 
   <label>
     Password
@@ -76,6 +102,11 @@ main {
 
 section {
   width: 100%;
+}
+
+.error {
+  color: #c31515;
+  margin-bottom: 1rem;
 }
 
 </style>

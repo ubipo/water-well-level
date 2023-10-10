@@ -128,7 +128,7 @@
                   const { waterLevelMM } = data[
                     dataIndex
                   ] as unknown as ChartDataPoint;
-                  return `Water level: ${(waterLevelMM / 1000).toFixed(2)} m`;
+                  return `Water level: ${(waterLevelMM / 1000).toFixed(3)} m`;
                 },
               },
             } as TooltipOptions<"scatter">,

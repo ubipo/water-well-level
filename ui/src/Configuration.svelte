@@ -7,8 +7,11 @@
 
   const HUMAN_READABLE_CONFIG_NAMES: Record<string, string> = {
     "sensorDistanceFromBottomMM": "Sensor distance from bottom (mm)",
+    "measurementIntervalS": "Measurement interval (s)",
+    "numberOfMeasurementsToSkipBetweenUploads": "Number of measurements to skip between uploads (batch upload)",
     "readAuthorizationToken": "Read authorization token",
     "writeAuthorizationToken": "Write authorization token",
+    "thresholdMinimumNotificationIntervalS": "Minimum time between notifications (s)",
     "lowerThresholdMM": "Lower threshold (mm)",
     "upperThresholdMM": "Upper threshold (mm)",
     "fastDropAmountMM": "Fast drop amount (mm)",

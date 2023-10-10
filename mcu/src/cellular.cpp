@@ -72,7 +72,7 @@ void sendSMS() {
   Serial.println("SMS sent.");
 }
 
-bool tryDisableEcho(unsigned long timeout) {
+unsigned char tryDisableEcho(unsigned long timeout) {
   unsigned long streamTimeoutBackup = Serial1.getTimeout();
   unsigned long startTime = millis();
   while (millis() - startTime < timeout) {
@@ -81,14 +81,14 @@ bool tryDisableEcho(unsigned long timeout) {
     String response = Serial1.readStringUntil('\n');
     if (response.indexOf("OK") >= 0) {
       Serial1.setTimeout(streamTimeoutBackup);
-      return true;
+      return RET_OK;
     }
     if (response.indexOf("ATE0") >= 0) {
       Serial1.setTimeout(streamTimeoutBackup);
-      return true;
+      return RET_OK;
     }
   }
-  return false;
+  return RET_TIMEOUT;
 }
 
 String CREG_RESPONSE_LINE_PREFIX = F("+CREG: ");
@@ -162,7 +162,28 @@ unsigned char waitUntilCellularNetworkRegistered(
   return RET_TIMEOUT;
 }
 
+unsigned char checkIfCellularIsOn(unsigned long timeout, bool* isOn) {
+  // Clear UART buffer
+  while (Serial1.available()) {
+    Serial1.read();
+  }
 
+  Serial1.println("ATE0");
+  unsigned long startTime = millis();
+  while (millis() - startTime < timeout) {
+    // If any response is received, the module is on
+    if (Serial1.available()) {
+      // Clear UART buffer
+      while (Serial1.available()) {
+        Serial1.read();
+      }
+      *isOn = true;
+      return RET_OK;
+    }
+  }
+  *isOn = false;
+  return RET_TIMEOUT;
+}
 
 void powerOffCellular() {
   pinMode(PIN_CELLULAR_PWR, OUTPUT);
@@ -202,7 +223,7 @@ bool tryCellularUARTSetup() {
   // Design_V1.00)
   // In reality it seems to vary up to even 25 seconds?
   // In any case, wait for quite a while to be sure and prevent a restart loop.
-  if (!tryDisableEcho(35000)) {
+  if (tryDisableEcho(35000) != RET_OK) {
     LOGLN("[ERR|Cellular] Could not disable echo");
     return false;
   }
@@ -238,7 +259,7 @@ void setupCellularIO() {
 
 void setupCellular() {
   powerOnCellular();
-  Serial.println("[INF|Cellular] Signaled cellular module to power on");
+  LOGLN("[INF|Cellular] Signaled cellular module to power on");
   fastBlink(1);
 
   while (1) {

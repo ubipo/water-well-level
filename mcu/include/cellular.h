@@ -10,6 +10,7 @@
 unsigned char sendNoResponseCommand(Stream* modemStream, String command);
 void setupCellularIO();
 void setupCellular();
+unsigned char checkIfCellularIsOn(unsigned long timeout, bool* isOn);
 void powerOnCellular();
 void powerOffCellular();
 void rebootCellular();

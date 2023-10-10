@@ -4,7 +4,7 @@
 #define STRINGIFY2(X) #X
 #define STRINGIFY(X) STRINGIFY2(X)
 
-#define DEBUG true
+#define DEBUG false
 #define LOGLN(x) if (DEBUG) Serial.println(x)
 #define LOGF(...) if (DEBUG) Serial.printf(__VA_ARGS__)
 

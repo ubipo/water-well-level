@@ -9,3 +9,9 @@ unsigned char httpGet(
     String* response,
     unsigned long timeout = DEFAULT_TIMEOUT
 );
+unsigned char httpPost(
+    String url,
+    String* body,
+    String* response,
+    unsigned long timeout = DEFAULT_TIMEOUT
+);
